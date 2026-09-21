@@ -5,16 +5,22 @@ from constantes import *  # Você pode usar as constantes definidas em constante
                           # diretamente no código
 
 
+
+# Gera uma posição aleatória desocupada no mapa, ou seja, uma posição que não esteja na lista de posições ocupadas.
+
 def gera_posicao_desocupada(posicoes_ocupadas, largura_mapa, altura_mapa):
-    # Implemente esta função para o nível básico
-    # A função deve retornar uma posição aleatória dentro da janela que não esteja na lista de posições ocupadas.
-    # Uma posição é uma lista com exatas dois elementos: a posição x e a posição y.
-    # Além disso, a posição gerada deve ser adicionada à lista de posições ocupadas.
+
+    posicao_gerada = False
+
+    while not posicao_gerada:
+        x = randint(1, largura_mapa - 2)
+        y = randint(1, altura_mapa - 2)
+        posicao = [x, y]
+
+        if posicao not in posicoes_ocupadas:
+            posicoes_ocupadas.append(posicao)
+            posicao_gerada = True
     
-    # O código abaixo é apenas um exemplo. Você deve apagar este código e escrever o seu, fazendo o que foi pedido acima.
-    x = randint(1, largura_mapa-2)
-    y = randint(1, altura_mapa-2)
-    posicao = [x, y]
     return posicao
 
 
