@@ -9,11 +9,23 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     # Utilize o dicionário estado para saber onde o jogador e os outros objetos estão.
     # Por exemplo, para saber a posição do jogador, use estado['pos_jogador']
     # O mapa esta armazenado em estado['mapa'].
-    motor.preenche_fundo(janela, PRETO)
+
+    jogador = estado['pos_jogador']
+    mapa = estado['mapa']
+    objetos = estado['objetos']
+
+
+    motor.preenche_fundo(janela, PRETO)  # Preenche o fundo da tela com a cor verde escuro
+
     
-    # O seu código deve desenhar a tela do jogo aqui a partir dos valores no dicionário "estado"
-    # APAGUE ESTA LINHA E A LINHA ABAIXO E ESCREVA SEU CÓDIGO AQUI
-    motor.desenha_string(janela, 0, altura_tela // 2, 'APAGUE ESTA LINHA', PRETO, BRANCO)
+    motor.desenha_string(janela, jogador[0], jogador[1], JOGADOR, BRANCO, PRETO)
+
+    for objeto in objetos:
+        motor.desenha_string(janela, objeto['posicao'][0], objeto['posicao'][1], objeto['tipo'], objeto['cor'], PRETO)
+
+
+    motor.desenha_string(janela, 0, len(mapa)-1, estado['mensagem'], BRANCO, PRETO)
+
 
     motor.mostra_janela(janela)
 
