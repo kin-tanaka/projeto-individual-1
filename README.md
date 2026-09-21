@@ -1,8 +1,6 @@
 # GRAVEBOUND
 
 
-[ESTE ARQUIVO É APENAS UMA BASE PARA O SEU README. FIQUE À VONTADE PARA MODIFICÁ-LO COMO QUISER - APAGUE ESTA MENSAGEM :)]
-
 Este é um projeto de um jogo [roguelike](https://pt.wikipedia.org/wiki/Roguelike) desenvolvido por Giuliano Kin Tanaka como projeto individual na disciplina Developer Life do semestre do curso de Ciência da Computação do Insper. O jogo foi desenvolvido em Python, utilizando o módulo [curses](https://docs.python.org/3/library/curses.html) para a interface gráfica.
 
 ## Descrição do jogo
