@@ -15,8 +15,12 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     objetos = estado['objetos']
 
 
-    motor.preenche_fundo(janela, PRETO)  # Preenche o fundo da tela com a cor verde escuro
+    motor.preenche_fundo(janela, PRETO)
 
+
+    for y in range(len(mapa)):
+        for x in range(len(mapa[y])):
+            motor.desenha_string(janela, x, y, mapa[y][x], VERDE_ESCURO, PRETO)
     
     motor.desenha_string(janela, jogador[0], jogador[1], JOGADOR, BRANCO, PRETO)
 
@@ -24,7 +28,7 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
         motor.desenha_string(janela, objeto['posicao'][0], objeto['posicao'][1], objeto['tipo'], objeto['cor'], PRETO)
 
 
-    motor.desenha_string(janela, 0, len(mapa)-1, estado['mensagem'], BRANCO, PRETO)
+    motor.desenha_string(janela, 0, len(mapa), estado['mensagem'], BRANCO, PRETO)
 
 
     motor.mostra_janela(janela)
