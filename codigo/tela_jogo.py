@@ -34,8 +34,17 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
 
 
     # Desenha as vidas do jogador na tela, usando o símbolo de coração
-    vidas_em_coracao = (CORACAO + ' ') * vidas
-    motor.desenha_string(janela, 0, len(mapa), vidas_em_coracao, PRETO, BRANCO)
+    
+    
+    if vidas < 5:
+        vidas__vermelhas = (CORACAO + ' ') * vidas
+        vidas__cinzas = ('🤍') * (5 - vidas)
+
+        vidas_totais = vidas__vermelhas + vidas__cinzas
+        motor.desenha_string(janela, 0, len(mapa), vidas_totais, PRETO, BRANCO)
+    else:
+        vidas_totais = (CORACAO + ' ') * 5
+        motor.desenha_string(janela, 0, len(mapa), vidas_totais, PRETO, BRANCO)
 
 
     # Desenha o jogador e os objetos na tela
