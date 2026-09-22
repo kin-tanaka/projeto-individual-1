@@ -43,10 +43,10 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
         vidas__cinzas = ('🤍') * (5 - vidas)
 
         vidas_totais = vidas__vermelhas + vidas__cinzas
-        motor.desenha_string(janela, 0, len(mapa), vidas_totais, PRETO, BRANCO)
+        motor.desenha_string(janela, 0, 0, vidas_totais, PRETO, BRANCO)
     else:
         vidas_totais = (CORACAO + ' ') * 5
-        motor.desenha_string(janela, 0, len(mapa), vidas_totais, PRETO, BRANCO)
+        motor.desenha_string(janela, 0, 0, vidas_totais, PRETO, BRANCO)
 
 
     # Desenha o jogador e os objetos na tela

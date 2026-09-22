@@ -56,21 +56,7 @@ def inicializa_estado():
     # Cria lista de listas, cada uma com 50 espaços em branco
     # Você pode mudar esta lista, inclusive seu tamanho, à vontade
     mapa = [
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
-        [' '] * 50,
+        [' '] * 50 for l in range(15)
     ]
     
     largura_mapa = len(mapa[0])
