@@ -6,31 +6,51 @@ import motor_grafico as motor  # Utilize as funções do arquivo motor_grafico.p
 
 
 def desenha_tela(janela, estado, altura_tela, largura_tela):
-    # Utilize o dicionário estado para saber onde o jogador e os outros objetos estão.
-    # Por exemplo, para saber a posição do jogador, use estado['pos_jogador']
-    # O mapa esta armazenado em estado['mapa'].
 
+    # Define as variáveis locais para facilitar a leitura do código
     jogador = estado['pos_jogador']
     mapa = estado['mapa']
     objetos = estado['objetos']
+    mensagem = estado['mensagem']
+    vidas = estado['vidas']
 
+
+    # Calcula a posição central do mapa na tela
+    x_central_mapa = (largura_tela - len(mapa[0])) // 2
+    y_central_mapa = (altura_tela - len(mapa)) // 2
+
+
+    # Desenha o fundo da tela e as dimensões do mapa do jogo
+    largura_mapa = len(mapa[0])
+    altura_mapa = len(mapa)
 
     motor.preenche_fundo(janela, PRETO)
 
 
-    for y in range(len(mapa)):
-        for x in range(len(mapa[y])):
-            motor.desenha_string(janela, x, y, mapa[y][x], VERDE_ESCURO, PRETO)
-    
-    motor.desenha_string(janela, jogador[0], jogador[1], JOGADOR, BRANCO, PRETO)
+    # Desenha o mapa na tela
+    for y in range(altura_mapa):
+        for x in range(largura_mapa):
+            motor.desenha_string(janela, x + x_central_mapa, y + y_central_mapa, mapa[y][x], VERDE_ESCURO, PRETO)
+
+
+    # Desenha as vidas do jogador na tela, usando o símbolo de coração
+    vidas_em_coracao = (CORACAO + ' ') * vidas
+    motor.desenha_string(janela, 0, len(mapa), vidas_em_coracao, PRETO, BRANCO)
+
+
+    # Desenha o jogador e os objetos na tela
+    motor.desenha_string(janela, jogador[0] + x_central_mapa, jogador[1] + y_central_mapa, JOGADOR, VERDE_ESCURO, AZUL) 
 
     for objeto in objetos:
-        motor.desenha_string(janela, objeto['posicao'][0], objeto['posicao'][1], objeto['tipo'], objeto['cor'], PRETO)
+        motor.desenha_string(janela, objeto['posicao'][0] + x_central_mapa, objeto['posicao'][1] + y_central_mapa, objeto['tipo'], VERDE_ESCURO, objeto['cor'])
 
 
-    motor.desenha_string(janela, 0, len(mapa), estado['mensagem'], BRANCO, PRETO)
+    # Desenha a mensagem na tela, se houver
+    if mensagem != '':
+        motor.desenha_string(janela, 0, len(mapa) + 3, mensagem, PRETO, BRANCO)
 
 
+    # Mostra a janela na tela
     motor.mostra_janela(janela)
 
 
