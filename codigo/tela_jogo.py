@@ -7,6 +7,8 @@ import motor_grafico as motor  # Utilize as funções do arquivo motor_grafico.p
 
 def desenha_tela(janela, estado, altura_tela, largura_tela):
 
+    #Todas as variáveis que você precisa para desenhar a tela estão no dicionário "estado" encontrado no arquivo jogo.py.
+
     # Define as variáveis locais para facilitar a leitura do código
     jogador = estado['pos_jogador']
     mapa = estado['mapa']
@@ -64,11 +66,39 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
 
 
 def atualiza_estado(estado, tecla):
-    # O seu código deve atualizar o dicionário "estado" com base na tecla apertada pelo jogador
-    # Por exemplo, se o jogador apertar a seta para a esquerda (o valor da variável será "ESQUERDA"), 
-    # o seu código deve atualizar o dicionário estado['pos_jogador'][0] -= 1
+    
+    #Checa se a movimentação requisitada é valida e atualiza a posição do jogador com base na tecla apertada
+    if tecla == motor.SETA_ESQUERDA:
+
+        if estado['pos_jogador'][0] > 1:  # Verifica se o jogador não está na borda esquerda do mapa
+            estado['pos_jogador'][0] -= 1
+        else:
+            estado['mensagem'] = 'Você não pode sair do mapa!'
+
+    elif tecla == motor.SETA_DIREITA:
+
+        if estado['pos_jogador'][0] < len(estado['mapa'][0]) - 2:  # Verifica se o jogador não está na borda direita do mapa
+            estado['pos_jogador'][0] += 1
+        else:
+            estado['mensagem'] = 'Você não pode sair do mapa!'
+
+    elif tecla == motor.SETA_CIMA:
+
+        if estado['pos_jogador'][1] > 1:  # Verifica se o jogador não está na borda superior do mapa
+            estado['pos_jogador'][1] -= 1
+        else:
+            estado['mensagem'] = 'Você não pode sair do mapa!'
+
+    elif tecla == motor.SETA_BAIXO:
+
+        if estado['pos_jogador'][1] < len(estado['mapa']) - 2:  # Verifica se o jogador não está na borda inferior do mapa
+            estado['pos_jogador'][1] += 1
+        else:
+            estado['mensagem'] = 'Você não pode sair do mapa!'
 
     # Mude o valor da chave 'tela_atual' para mudar de tela
+
+    tela_atual = estado['tela_atual']
     
     # Começamos apagando a mensagem anterior, pois ela já foi mostrada no frame anterior
     estado['mensagem'] = ''
