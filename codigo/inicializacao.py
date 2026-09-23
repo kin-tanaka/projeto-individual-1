@@ -74,7 +74,7 @@ def inicializa_estado():
     return {
         'tela_atual': TELA_JOGO,
         'pos_jogador': pos_jogador,
-        'vidas': 5,  # Quantidade atual de vidas do jogador - ele pode perder vidas ao colidir com espinhos ou ganhar vidas ao pegar corações
+        'vidas': 2,  # Quantidade atual de vidas do jogador - ele pode perder vidas ao colidir com espinhos ou ganhar vidas ao pegar corações
         'max_vidas': 5,  # Quantidade máxima de vidas que o jogador pode ter - o valor da chave 'vidas' nunca pode ser maior que o valor da chave 'max_vidas'
         'objetos': objetos,
         'mapa': mapa,

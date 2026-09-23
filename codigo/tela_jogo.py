@@ -50,10 +50,10 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
 
 
     # Desenha o jogador e os objetos na tela
-    motor.desenha_string(janela, jogador[0] + x_central_mapa, jogador[1] + y_central_mapa, JOGADOR, VERDE_ESCURO, AZUL) 
-
     for objeto in objetos:
         motor.desenha_string(janela, objeto['posicao'][0] + x_central_mapa, objeto['posicao'][1] + y_central_mapa, objeto['tipo'], VERDE_ESCURO, objeto['cor'])
+
+    motor.desenha_string(janela, jogador[0] + x_central_mapa, jogador[1] + y_central_mapa, JOGADOR, VERDE_ESCURO, AZUL) 
 
 
     # Desenha a mensagem na tela, se houver
@@ -66,45 +66,67 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
 
 
 def atualiza_estado(estado, tecla):
-    
+
+    # Define as variáveis locais para facilitar a leitura do código
+    jogador = estado['pos_jogador']
+    objetos = estado['objetos']
+    vidas = estado['vidas']
+
+
+    # Limpa a mensagem se o jogador não estiver na mesma posição de nenhum objeto
+    estado['mensagem'] = ''  
+
+        
     #Checa se a movimentação requisitada é valida e atualiza a posição do jogador com base na tecla apertada
     if tecla == motor.SETA_ESQUERDA:
 
-        if estado['pos_jogador'][0] > 1:  # Verifica se o jogador não está na borda esquerda do mapa
-            estado['pos_jogador'][0] -= 1
-        else:
-            estado['mensagem'] = 'Você não pode sair do mapa!'
+        if jogador[0] > 1:  # Verifica se o jogador não está na borda esquerda do mapa
+            jogador[0] -= 1
 
     elif tecla == motor.SETA_DIREITA:
 
-        if estado['pos_jogador'][0] < len(estado['mapa'][0]) - 2:  # Verifica se o jogador não está na borda direita do mapa
-            estado['pos_jogador'][0] += 1
-        else:
-            estado['mensagem'] = 'Você não pode sair do mapa!'
+        if jogador[0] < len(estado['mapa'][0]) - 2:  # Verifica se o jogador não está na borda direita do mapa
+            jogador[0] += 1
 
     elif tecla == motor.SETA_CIMA:
 
-        if estado['pos_jogador'][1] > 1:  # Verifica se o jogador não está na borda superior do mapa
-            estado['pos_jogador'][1] -= 1
-        else:
-            estado['mensagem'] = 'Você não pode sair do mapa!'
+        if jogador[1] > 1:  # Verifica se o jogador não está na borda superior do mapa
+            jogador[1] -= 1
 
     elif tecla == motor.SETA_BAIXO:
 
-        if estado['pos_jogador'][1] < len(estado['mapa']) - 2:  # Verifica se o jogador não está na borda inferior do mapa
-            estado['pos_jogador'][1] += 1
-        else:
-            estado['mensagem'] = 'Você não pode sair do mapa!'
+        if jogador[1] < len(estado['mapa']) - 2:  # Verifica se o jogador não está na borda inferior do mapa
+            jogador[1] += 1
 
-    # Mude o valor da chave 'tela_atual' para mudar de tela
-
-    tela_atual = estado['tela_atual']
     
-    # Começamos apagando a mensagem anterior, pois ela já foi mostrada no frame anterior
-    estado['mensagem'] = ''
+    # Checa se o jogador está na mesma posição de algum objeto e atualiza a quantidade de vidas do jogador com base no tipo do objeto
+    for objeto in objetos:
 
-    # Escreva seu código para atualizar o dicionário "estado" com base na tecla apertada pelo jogador aqui
-    # APAGUE ESTA LINHA E ESCREVA SEU CÓDIGO AQUI
+        if jogador == objeto['posicao']:
+
+            if objeto['tipo'] == CORACAO:
+
+                if vidas < estado['max_vidas']:
+                    estado['vidas'] += 1
+                    estado['mensagem'] = 'Você ganhou uma vida!'
+                    objetos.remove(objeto)  # Remove o coração do mapa após o jogador pegá-lo
+                else:
+                    objetos.remove(objeto)  # Remove o coração do mapa, mas não aumenta a quantidade de vidas do jogador
+
+
+            if objeto['tipo'] == ESPINHO:
+
+                if vidas > 1:
+                    estado['vidas'] -= 1
+                    estado['mensagem'] = 'Você perdeu uma vida!'
+
+                else:
+                    estado['tela_atual'] = SAIR
+
+
+    # Muda o valor da chave 'tela_atual' para mudar de tela
+    estado['tela_atual']
+
 
     # Ao apertar a tecla 'i', o jogador deve ver o inventário
     if tecla == 'i':
