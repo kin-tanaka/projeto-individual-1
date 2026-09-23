@@ -58,7 +58,7 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
 
     # Desenha a mensagem na tela, se houver
     if mensagem != '':
-        motor.desenha_string(janela, 0, len(mapa) + 3, mensagem, PRETO, BRANCO)
+        motor.desenha_string(janela, 0, len(mapa) + 10, mensagem, PRETO, BRANCO)
 
 
     # Mostra a janela na tela
