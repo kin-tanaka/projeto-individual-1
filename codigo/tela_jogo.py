@@ -131,7 +131,7 @@ def interacao_objetos(jogador, objetos, vidas, estado):
     return vidas
 
 
-def interacao_monstros(jogador, monstros, vidas, estado):
+def interacao_monstros(jogador, monstros, monstros_coordenadas, vidas, estado):
 
     # Esta função verifica se o jogador está na mesma posição de algum monstro e atualiza a quantidade de vidas do jogador com base no resultado do encontro.
     # Retorna a quantidade de vidas atualizada.
@@ -153,7 +153,8 @@ def interacao_monstros(jogador, monstros, vidas, estado):
                     estado['mensagem'] = 'Você atacou o monstro! Ele perdeu uma vida.'
                 else:
                     estado['mensagem'] = 'Você derrotou o monstro!'
-                    monstros.remove(monstro)  # Remove o monstro do mapa após o jogador derrotá-lo
+                    monstros.remove(monstro) # Remove o monstro do mapa após o jogador derrotá-lo
+                    monstros_coordenadas.remove(monstro['posicao']) # Remove a posição do monstro da lista de coordenadas dos monstros
 
     return vidas
 
@@ -171,45 +172,83 @@ def atualiza_estado(estado, tecla):
 
 
     # Limpa a mensagem se o jogador não estiver na mesma posição de nenhum objeto
-    estado['mensagem'] = ''  
+    estado['mensagem'] = ''
 
-        
-    #Checa se a movimentação requisitada é valida e atualiza a posição do jogador com base na tecla apertada
+
+    # Checa se o jogador está tentando atravessar uma parede. Se sim, impede o movimento, se não
+    # Checa se o jogador está tentando atravessar um monstro. Se sim, impede e tem interação com o monstro, se não
+    # Checa se o jogador está interagindo com o objeto e qual, fazendo a devida alteração na vida.
+
     if tecla == motor.SETA_ESQUERDA:
+        nova_posicao = [jogador[0] - 1, jogador[1]]
 
         if checa_movimento(jogador, paredes, tecla):
-            jogador[0] -= 1
+
+            if nova_posicao not in monstros_coordenadas:
+
+                jogador[0] -= 1
+
+                estado['vidas'] = interacao_objetos(jogador, objetos, vidas, estado)
+
+            else:
+                estado['vidas'] = interacao_monstros(nova_posicao, monstros, monstros_coordenadas, vidas, estado)
+
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
 
     elif tecla == motor.SETA_DIREITA:
+        nova_posicao = [jogador[0] + 1, jogador[1]]
 
         if checa_movimento(jogador, paredes, tecla):
-            jogador[0] += 1
+        
+                    if nova_posicao not in monstros_coordenadas:
+
+                        jogador[0] += 1
+        
+                        estado['vidas'] = interacao_objetos(jogador, objetos, vidas, estado)
+        
+                    else:
+                        estado['vidas'] = interacao_monstros(nova_posicao, monstros, monstros_coordenadas, vidas, estado)
+
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
-
+            
     elif tecla == motor.SETA_CIMA:
+        nova_posicao = [jogador[0], jogador[1] - 1]
 
         if checa_movimento(jogador, paredes, tecla):
-            jogador[1] -= 1
+        
+                    if nova_posicao not in monstros_coordenadas:
+
+                        jogador[1] -= 1
+        
+                        estado['vidas'] = interacao_objetos(jogador, objetos, vidas, estado)
+        
+                    else:
+                        estado['vidas'] = interacao_monstros(nova_posicao, monstros, monstros_coordenadas, vidas, estado)
+
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
 
     elif tecla == motor.SETA_BAIXO:
+        nova_posicao = [jogador[0], jogador[1] + 1]
 
         if checa_movimento(jogador, paredes, tecla):
-            jogador[1] += 1
+        
+                    if nova_posicao not in monstros_coordenadas:
+
+                        jogador[1] += 1
+        
+                        estado['vidas'] = interacao_objetos(jogador, objetos, vidas, estado)
+        
+                    else:
+                        estado['vidas'] = interacao_monstros(nova_posicao, monstros, monstros_coordenadas, vidas, estado)
+
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
 
-    
-    # Checa se o jogador está na mesma posição de algum objeto e atualiza a quantidade de vidas do jogador com base no tipo do objeto
-    vidas = interacao_objetos(jogador, objetos, vidas, estado)
-
-
-    # Checa se o jogador está na mesma posição de algum monstro e atualiza a quantidade de vidas do jogador com base no resultado do encontro.
-    vidas = interacao_monstros(jogador, monstros, vidas, estado)
+    elif tecla == motor.ESCAPE:
+        estado['tela_atual'] = SAIR
 
 
     # Muda o valor da chave 'tela_atual' para mudar de tela
