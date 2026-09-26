@@ -3,7 +3,6 @@ from constantes import *  # Você pode usar as constantes definidas em constante
                           # diretamente no código
 import motor_grafico as motor  # Utilize as funções do arquivo motor_grafico.py para desenhar na tela
                                # Por exemplo: motor.preenche_fundo(janela, [0, 0, 0]) preenche o fundo de preto
-
 def desenha_paredes(mapa):
     # Esta função substitui os caracteres 'X' do mapa por paredes (PAREDE) e os caracteres '_' por espaços em branco (' ').
 
@@ -15,7 +14,7 @@ def desenha_paredes(mapa):
                 mapa[i][j] = ' '
 
     return mapa
-    
+
 
 def desenha_tela(janela, estado, altura_tela, largura_tela):
 
@@ -90,6 +89,8 @@ def atualiza_estado(estado, tecla):
     jogador = estado['pos_jogador']
     objetos = estado['objetos']
     vidas = estado['vidas']
+    paredes = estado['paredes']
+
 
 
     # Limpa a mensagem se o jogador não estiver na mesma posição de nenhum objeto
@@ -99,23 +100,34 @@ def atualiza_estado(estado, tecla):
     #Checa se a movimentação requisitada é valida e atualiza a posição do jogador com base na tecla apertada
     if tecla == motor.SETA_ESQUERDA:
 
-        if jogador[0] > 1:  # Verifica se o jogador não está na borda esquerda do mapa
+        if [jogador[0] - 1, jogador[1]] not in paredes:  # Verifica se o jogador não está colidindo com uma parede
             jogador[0] -= 1
+        else:
+            estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
 
     elif tecla == motor.SETA_DIREITA:
 
-        if jogador[0] < len(estado['mapa'][0]) - 2:  # Verifica se o jogador não está na borda direita do mapa
+        if [jogador[0] + 1, jogador[1]] not in paredes:  # Verifica se o jogador não está colidindo com uma parede
             jogador[0] += 1
+        else:
+            estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
 
     elif tecla == motor.SETA_CIMA:
 
-        if jogador[1] > 1:  # Verifica se o jogador não está na borda superior do mapa
+        if [jogador[0], jogador[1] - 1] not in paredes:  # Verifica se o jogador não está colidindo com uma parede
             jogador[1] -= 1
+        else:
+            estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
 
     elif tecla == motor.SETA_BAIXO:
 
-        if jogador[1] < len(estado['mapa']) - 2:  # Verifica se o jogador não está na borda inferior do mapa
+        if [jogador[0], jogador[1] + 1] not in paredes:  # Verifica se o jogador não está colidindo com uma parede
             jogador[1] += 1
+        else:
+            estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
+
+    
+
 
     
     # Checa se o jogador está na mesma posição de algum objeto e atualiza a quantidade de vidas do jogador com base no tipo do objeto

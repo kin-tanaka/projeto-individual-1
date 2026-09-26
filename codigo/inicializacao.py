@@ -52,11 +52,19 @@ def gera_objetos(quantidade, tipo, cor, largura_mapa, altura_mapa, posicoes_ocup
     return objetos
 
 
+def coordenadas_paredes(mapa):
+    # Esta função retorna uma lista de coordenadas (x, y) das paredes do mapa.
+    coordenadas = []
+    for i in range(len(mapa)):
+        for j in range(len(mapa[i])):
+            if mapa[i][j] == 'X':
+                coordenadas.append([j, i])  # Adiciona a coordenada (x, y) da parede à lista
+    return coordenadas
 
 
 def inicializa_estado():
-    # Cria lista de listas, cada uma com 50 espaços em branco
-    # Você pode mudar esta lista, inclusive seu tamanho, à vontade
+    # Cria uma variável mapa que representa o mapa do jogo. Cada elemento da lista é uma linha do mapa, e cada caractere da string é um elemento do mapa.
+    # Pode variar entre 'X' (parede) e '_' (espaço em branco).
     with open('mapa.txt', 'r') as arquivo:
         linhas = arquivo.readlines()
 
@@ -66,6 +74,13 @@ def inicializa_estado():
             linha = linha.strip()
             linha = list(linha)
             mapa.append(linha)
+
+    posicoes_ocupadas = []
+
+    paredes = coordenadas_paredes(mapa)
+    for posicao in paredes:
+        posicoes_ocupadas.append(posicao)
+
     
     largura_mapa = len(mapa[0])
     altura_mapa = len(mapa)
@@ -74,7 +89,7 @@ def inicializa_estado():
     pos_jogador = [largura_mapa//2, altura_mapa//2]  # Meio do mapa
     
     # Cria outros objetos do mapa
-    posicoes_ocupadas = [pos_jogador]
+    posicoes_ocupadas.append(pos_jogador)
     objetos = []
     objetos += gera_objetos(8, CORACAO, VERMELHO, largura_mapa, altura_mapa, posicoes_ocupadas)
     objetos += gera_objetos(6, ESPINHO, VERDE_CLARO, largura_mapa, altura_mapa, posicoes_ocupadas)
@@ -85,7 +100,7 @@ def inicializa_estado():
         'vidas': 2,  # Quantidade atual de vidas do jogador - ele pode perder vidas ao colidir com espinhos ou ganhar vidas ao pegar corações
         'max_vidas': 5,  # Quantidade máxima de vidas que o jogador pode ter - o valor da chave 'vidas' nunca pode ser maior que o valor da chave 'max_vidas'
         'objetos': objetos,
-        'mapa': mapa,
         'mensagem': '',  # Use esta mensagem para mostrar mensagens ao jogador, como "Você perdeu uma vida" ou "Você ganhou uma vida"
-        'mapa': mapa
+        'mapa': mapa,
+        'paredes': paredes  # Adiciona a lista de paredes ao estado do jogo
     }
