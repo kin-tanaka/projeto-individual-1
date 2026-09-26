@@ -52,12 +52,20 @@ def gera_objetos(quantidade, tipo, cor, largura_mapa, altura_mapa, posicoes_ocup
     return objetos
 
 
+
+
 def inicializa_estado():
     # Cria lista de listas, cada uma com 50 espaços em branco
     # Você pode mudar esta lista, inclusive seu tamanho, à vontade
-    mapa = [
-        [' '] * 50 for l in range(15)
-    ]
+    with open('mapa.txt', 'r') as arquivo:
+        linhas = arquivo.readlines()
+
+        mapa = []
+
+        for linha in linhas:
+            linha = linha.strip()
+            linha = list(linha)
+            mapa.append(linha)
     
     largura_mapa = len(mapa[0])
     altura_mapa = len(mapa)
@@ -79,4 +87,5 @@ def inicializa_estado():
         'objetos': objetos,
         'mapa': mapa,
         'mensagem': '',  # Use esta mensagem para mostrar mensagens ao jogador, como "Você perdeu uma vida" ou "Você ganhou uma vida"
+        'mapa': mapa
     }

@@ -4,6 +4,18 @@ from constantes import *  # Você pode usar as constantes definidas em constante
 import motor_grafico as motor  # Utilize as funções do arquivo motor_grafico.py para desenhar na tela
                                # Por exemplo: motor.preenche_fundo(janela, [0, 0, 0]) preenche o fundo de preto
 
+def desenha_paredes(mapa):
+    # Esta função substitui os caracteres 'X' do mapa por paredes (PAREDE) e os caracteres '_' por espaços em branco (' ').
+
+    for i in range(len(mapa)):
+        for j in range(len(mapa[i])):
+            if mapa[i][j] == 'X':
+                mapa[i][j] = PAREDE
+            elif mapa[i][j] == '_':
+                mapa[i][j] = ' '
+
+    return mapa
+    
 
 def desenha_tela(janela, estado, altura_tela, largura_tela):
 
@@ -15,7 +27,11 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     objetos = estado['objetos']
     mensagem = estado['mensagem']
     vidas = estado['vidas']
+    mapa = estado['mapa']
 
+
+    # Desenha as paredes do mapa.
+    mapa = desenha_paredes(mapa)
 
     # Calcula a posição central do mapa na tela
     x_central_mapa = (largura_tela - len(mapa[0])) // 2
@@ -32,7 +48,10 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     # Desenha o mapa na tela
     for y in range(altura_mapa):
         for x in range(largura_mapa):
-            motor.desenha_string(janela, x + x_central_mapa, y + y_central_mapa, mapa[y][x], VERDE_ESCURO, PRETO)
+            if mapa[y][x] == PAREDE:
+                motor.desenha_string(janela, x + x_central_mapa, y + y_central_mapa, mapa[y][x], MARROM_ESCURO, MARROM_MAIS_ESCURO)
+            else:
+                motor.desenha_string(janela, x + x_central_mapa, y + y_central_mapa, mapa[y][x], VERDE_ESCURO, PRETO)
 
 
     # Desenha as vidas do jogador na tela, usando o símbolo de coração
