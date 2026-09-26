@@ -3,6 +3,9 @@ from constantes import *  # Você pode usar as constantes definidas em constante
                           # diretamente no código
 import motor_grafico as motor  # Utilize as funções do arquivo motor_grafico.py para desenhar na tela
                                # Por exemplo: motor.preenche_fundo(janela, [0, 0, 0]) preenche o fundo de preto
+import random
+
+
 def desenha_paredes(mapa):
     # Esta função substitui os caracteres 'X' do mapa por paredes (PAREDE) e os caracteres '_' por espaços em branco (' ').
 
@@ -27,6 +30,7 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     mensagem = estado['mensagem']
     vidas = estado['vidas']
     mapa = estado['mapa']
+    monstros = estado['monstros']
 
 
     # Desenha as paredes do mapa.
@@ -74,6 +78,10 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     motor.desenha_string(janela, jogador[0] + x_central_mapa, jogador[1] + y_central_mapa, JOGADOR, VERDE_ESCURO, AZUL) 
 
 
+    # Desenha os monstros na tela
+    for monstro in monstros:
+        motor.desenha_string(janela, monstro['posicao'][0] + x_central_mapa, monstro['posicao'][1] + y_central_mapa, monstro['tipo'], VERDE_ESCURO, monstro['cor'])
+
     # Desenha a mensagem na tela, se houver
     if mensagem != '':
         motor.desenha_string(janela, 0, len(mapa) + 10, mensagem, PRETO, BRANCO)
@@ -83,6 +91,73 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     motor.mostra_janela(janela)
 
 
+def checa_movimento(jogador, paredes, tecla):
+    # Esta função verifica se o movimento do jogador é válido, ou seja, se ele não está tentando atravessar uma parede.
+    # Retorna True se o movimento for válido e False caso contrário.
+
+    if tecla == motor.SETA_ESQUERDA:
+        return [jogador[0] - 1, jogador[1]] not in paredes
+    elif tecla == motor.SETA_DIREITA:
+        return [jogador[0] + 1, jogador[1]] not in paredes
+    elif tecla == motor.SETA_CIMA:
+        return [jogador[0], jogador[1] - 1] not in paredes
+    elif tecla == motor.SETA_BAIXO:
+        return [jogador[0], jogador[1] + 1] not in paredes
+    else:
+        return False
+
+
+def interacao_objetos(jogador, objetos, vidas, estado):
+    # Esta função verifica se o jogador está na mesma posição de algum objeto e atualiza a quantidade de vidas do jogador com base no tipo do objeto.
+    # Retorna a quantidade de vidas atualizada.
+
+    for objeto in objetos:
+        if jogador == objeto['posicao']:
+            if objeto['tipo'] == CORACAO:
+                if vidas < estado['max_vidas']:
+                    vidas += 1
+                    estado['mensagem'] = 'Você ganhou uma vida!'
+                    objetos.remove(objeto)  # Remove o coração do mapa após o jogador pegá-lo
+                else:
+                    objetos.remove(objeto)  # Remove o coração do mapa, mas não aumenta a quantidade de vidas do jogador
+
+            elif objeto['tipo'] == ESPINHO:
+                if vidas > 1:
+                    vidas -= 1
+                    estado['mensagem'] = 'Você perdeu uma vida!'
+                else:
+                    estado['tela_atual'] = SAIR
+
+    return vidas
+
+
+def interacao_monstros(jogador, monstros, vidas, estado):
+
+    # Esta função verifica se o jogador está na mesma posição de algum monstro e atualiza a quantidade de vidas do jogador com base no resultado do encontro.
+    # Retorna a quantidade de vidas atualizada.
+
+    for monstro in monstros:
+        probabilidade_ataque = monstro['probabilidade_ataque']
+        resultado_ataque = random.random() < probabilidade_ataque  # Retorna True se random.random() retornar um valor menor que a probabilidade de ataque do monstro.
+
+        if jogador == monstro['posicao']:
+            if resultado_ataque:
+                if vidas > 1:
+                    vidas -= 1
+                    estado['mensagem'] = 'Você foi atacado! Perdeu uma vida.'
+                else:
+                    estado['tela_atual'] = SAIR
+            else:
+                if monstro['vidas'] > 1:
+                    monstro['vidas'] -= 1
+                    estado['mensagem'] = 'Você atacou o monstro! Ele perdeu uma vida.'
+                else:
+                    estado['mensagem'] = 'Você derrotou o monstro!'
+                    monstros.remove(monstro)  # Remove o monstro do mapa após o jogador derrotá-lo
+
+    return vidas
+
+
 def atualiza_estado(estado, tecla):
 
     # Define as variáveis locais para facilitar a leitura do código
@@ -90,6 +165,8 @@ def atualiza_estado(estado, tecla):
     objetos = estado['objetos']
     vidas = estado['vidas']
     paredes = estado['paredes']
+    monstros = estado['monstros']
+    monstros_coordenadas = estado['monstros_coordenadas']
 
 
 
@@ -100,59 +177,39 @@ def atualiza_estado(estado, tecla):
     #Checa se a movimentação requisitada é valida e atualiza a posição do jogador com base na tecla apertada
     if tecla == motor.SETA_ESQUERDA:
 
-        if [jogador[0] - 1, jogador[1]] not in paredes:  # Verifica se o jogador não está colidindo com uma parede
+        if checa_movimento(jogador, paredes, tecla):
             jogador[0] -= 1
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
 
     elif tecla == motor.SETA_DIREITA:
 
-        if [jogador[0] + 1, jogador[1]] not in paredes:  # Verifica se o jogador não está colidindo com uma parede
+        if checa_movimento(jogador, paredes, tecla):
             jogador[0] += 1
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
 
     elif tecla == motor.SETA_CIMA:
 
-        if [jogador[0], jogador[1] - 1] not in paredes:  # Verifica se o jogador não está colidindo com uma parede
+        if checa_movimento(jogador, paredes, tecla):
             jogador[1] -= 1
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
 
     elif tecla == motor.SETA_BAIXO:
 
-        if [jogador[0], jogador[1] + 1] not in paredes:  # Verifica se o jogador não está colidindo com uma parede
+        if checa_movimento(jogador, paredes, tecla):
             jogador[1] += 1
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
 
     
-
-
-    
     # Checa se o jogador está na mesma posição de algum objeto e atualiza a quantidade de vidas do jogador com base no tipo do objeto
-    for objeto in objetos:
-
-        if jogador == objeto['posicao']:
-
-            if objeto['tipo'] == CORACAO:
-
-                if vidas < estado['max_vidas']:
-                    estado['vidas'] += 1
-                    estado['mensagem'] = 'Você ganhou uma vida!'
-                    objetos.remove(objeto)  # Remove o coração do mapa após o jogador pegá-lo
-                else:
-                    objetos.remove(objeto)  # Remove o coração do mapa, mas não aumenta a quantidade de vidas do jogador
+    vidas = interacao_objetos(jogador, objetos, vidas, estado)
 
 
-            if objeto['tipo'] == ESPINHO:
-
-                if vidas > 1:
-                    estado['vidas'] -= 1
-                    estado['mensagem'] = 'Você perdeu uma vida!'
-
-                else:
-                    estado['tela_atual'] = SAIR
+    # Checa se o jogador está na mesma posição de algum monstro e atualiza a quantidade de vidas do jogador com base no resultado do encontro.
+    vidas = interacao_monstros(jogador, monstros, vidas, estado)
 
 
     # Muda o valor da chave 'tela_atual' para mudar de tela

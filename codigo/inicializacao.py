@@ -25,20 +25,15 @@ def gera_posicao_desocupada(posicoes_ocupadas, largura_mapa, altura_mapa):
 
 
 def gera_objetos(quantidade, tipo, cor, largura_mapa, altura_mapa, posicoes_ocupadas):
-    """
-    Esta função já está pronta, você não precisa modificá-la.
 
-    Gera uma lista de objetos do tipo especificado, com a quantidade especificada.
-    Cada objeto é um dicionário com as chaves 'tipo', 'posicao' e 'cor'.
+    # Parâmetros:
+    # quantidade: quantidade de objetos a serem gerados
+    # tipo: tipo do objeto a ser gerado. É uma string como '❤'
+    # cor: cor do objeto a ser gerado. É uma lista com três elementos, como [255, 0, 0]
+    # largura_mapa: largura do mapa do jogo em caracteres
+    # altura_mapa: altura do mapa do jogo em caracteres
+    # posicoes_ocupadas: lista de posições ocupadas no mapa. Cada posição é uma lista com exatamente dois elementos: a posição x e a posição y.
 
-    Parâmetros:
-    quantidade: quantidade de objetos a serem gerados
-    tipo: tipo do objeto a ser gerado. É uma string como '❤'
-    cor: cor do objeto a ser gerado. É uma lista com três elementos, como [255, 0, 0]
-    largura_mapa: largura do mapa do jogo em caracteres
-    altura_mapa: altura do mapa do jogo em caracteres
-    posicoes_ocupadas: lista de posições ocupadas no mapa. Cada posição é uma lista com exatamente dois elementos: a posição x e a posição y.
-    """
     objetos = []
 
     for i in range(quantidade):
@@ -52,13 +47,40 @@ def gera_objetos(quantidade, tipo, cor, largura_mapa, altura_mapa, posicoes_ocup
     return objetos
 
 
+def gera_monstros(quantidade, tipo, cor, vidas, probabilidade_ataque, largura_mapa, altura_mapa, posicoes_ocupadas):
+
+
+    monstros = []
+    
+    for i in range(quantidade):
+        posicao = gera_posicao_desocupada(posicoes_ocupadas, largura_mapa, altura_mapa)
+        monstros.append({
+            'tipo': tipo,
+            'posicao': posicao,
+            'cor': cor,
+            'vidas': vidas,
+            'probabilidade_ataque': probabilidade_ataque
+        })
+    
+    return monstros
+
+
 def coordenadas_paredes(mapa):
+
     # Esta função retorna uma lista de coordenadas (x, y) das paredes do mapa.
     coordenadas = []
     for i in range(len(mapa)):
         for j in range(len(mapa[i])):
             if mapa[i][j] == 'X':
                 coordenadas.append([j, i])  # Adiciona a coordenada (x, y) da parede à lista
+    return coordenadas
+
+
+def coordenadas_monstros(monstros):
+
+    coordenadas = []
+    for monstro in monstros:
+        coordenadas.append(monstro['posicao'])
     return coordenadas
 
 
@@ -81,18 +103,23 @@ def inicializa_estado():
     for posicao in paredes:
         posicoes_ocupadas.append(posicao)
 
-    
     largura_mapa = len(mapa[0])
     altura_mapa = len(mapa)
     
     # Você pode colocar o jogador em outro lugar, se preferir
     pos_jogador = [largura_mapa//2, altura_mapa//2]  # Meio do mapa
+    posicoes_ocupadas.append(pos_jogador)
     
     # Cria outros objetos do mapa
-    posicoes_ocupadas.append(pos_jogador)
     objetos = []
     objetos += gera_objetos(8, CORACAO, VERMELHO, largura_mapa, altura_mapa, posicoes_ocupadas)
     objetos += gera_objetos(6, ESPINHO, VERDE_CLARO, largura_mapa, altura_mapa, posicoes_ocupadas)
+
+    #Cria monstros no mapa
+    monstros = []
+    monstros += gera_monstros(4, MONSTRO, ROXO, 5, 0.3, largura_mapa, altura_mapa, posicoes_ocupadas)
+
+    monstros_coordenadas = coordenadas_monstros(monstros)
     
     return {
         'tela_atual': TELA_JOGO,
@@ -102,5 +129,7 @@ def inicializa_estado():
         'objetos': objetos,
         'mensagem': '',  # Use esta mensagem para mostrar mensagens ao jogador, como "Você perdeu uma vida" ou "Você ganhou uma vida"
         'mapa': mapa,
-        'paredes': paredes  # Adiciona a lista de paredes ao estado do jogo
+        'paredes': paredes,  # Adiciona a lista de paredes ao estado do jogo
+        'monstros': monstros,
+        'monstros_coordenadas': monstros_coordenadas
     }
