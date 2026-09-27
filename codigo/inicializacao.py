@@ -84,6 +84,14 @@ def coordenadas_monstros(monstros):
     return coordenadas
 
 
+def coordenadas_objetos(objetos):
+
+    coordenadas = []
+    for objeto in objetos:
+        coordenadas.append(objeto['posicao'])
+    return coordenadas
+
+
 def inicializa_estado():
     # Cria uma variável mapa que representa o mapa do jogo. Cada elemento da lista é uma linha do mapa, e cada caractere da string é um elemento do mapa.
     # Pode variar entre 'X' (parede) e '_' (espaço em branco).
@@ -99,8 +107,8 @@ def inicializa_estado():
 
     posicoes_ocupadas = []
 
-    paredes = coordenadas_paredes(mapa)
-    for posicao in paredes:
+    paredes_coordenadas = coordenadas_paredes(mapa)
+    for posicao in paredes_coordenadas:
         posicoes_ocupadas.append(posicao)
 
     largura_mapa = len(mapa[0])
@@ -115,6 +123,8 @@ def inicializa_estado():
     objetos += gera_objetos(8, CORACAO, VERMELHO, largura_mapa, altura_mapa, posicoes_ocupadas)
     objetos += gera_objetos(6, ESPINHO, VERDE_CLARO, largura_mapa, altura_mapa, posicoes_ocupadas)
 
+    objetos_coordenadas = coordenadas_objetos(objetos)
+
     #Cria monstros no mapa
     monstros = []
     monstros += gera_monstros(4, MONSTRO, ROXO, 5, 0.3, largura_mapa, altura_mapa, posicoes_ocupadas)
@@ -127,9 +137,10 @@ def inicializa_estado():
         'vidas': 2,  # Quantidade atual de vidas do jogador - ele pode perder vidas ao colidir com espinhos ou ganhar vidas ao pegar corações
         'max_vidas': 5,  # Quantidade máxima de vidas que o jogador pode ter - o valor da chave 'vidas' nunca pode ser maior que o valor da chave 'max_vidas'
         'objetos': objetos,
+        'objetos_coordenadas': objetos_coordenadas,
         'mensagem': '',  # Use esta mensagem para mostrar mensagens ao jogador, como "Você perdeu uma vida" ou "Você ganhou uma vida"
         'mapa': mapa,
-        'paredes': paredes,  # Adiciona a lista de paredes ao estado do jogo
-        'monstros': monstros,
+        'paredes_coordenadas': paredes_coordenadas,  # Adiciona a lista de coordenadas das paredes ao estado do jogo
+        'monstros': monstros, 
         'monstros_coordenadas': monstros_coordenadas
     }

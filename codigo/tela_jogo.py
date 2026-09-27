@@ -91,18 +91,18 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
     motor.mostra_janela(janela)
 
 
-def checa_movimento(jogador, paredes, tecla):
+def interacao_parede(jogador, paredes_coordenadas, tecla):
     # Esta função verifica se o movimento do jogador é válido, ou seja, se ele não está tentando atravessar uma parede.
     # Retorna True se o movimento for válido e False caso contrário.
 
     if tecla == motor.SETA_ESQUERDA:
-        return [jogador[0] - 1, jogador[1]] not in paredes
+        return [jogador[0] - 1, jogador[1]] not in paredes_coordenadas
     elif tecla == motor.SETA_DIREITA:
-        return [jogador[0] + 1, jogador[1]] not in paredes
+        return [jogador[0] + 1, jogador[1]] not in paredes_coordenadas
     elif tecla == motor.SETA_CIMA:
-        return [jogador[0], jogador[1] - 1] not in paredes
+        return [jogador[0], jogador[1] - 1] not in paredes_coordenadas
     elif tecla == motor.SETA_BAIXO:
-        return [jogador[0], jogador[1] + 1] not in paredes
+        return [jogador[0], jogador[1] + 1] not in paredes_coordenadas
     else:
         return False
 
@@ -156,7 +156,55 @@ def interacao_monstros(jogador, monstros, monstros_coordenadas, vidas, estado):
                     monstros.remove(monstro) # Remove o monstro do mapa após o jogador derrotá-lo
                     monstros_coordenadas.remove(monstro['posicao']) # Remove a posição do monstro da lista de coordenadas dos monstros
 
+
     return vidas
+
+
+def movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, monstros_coordenadas, jogador):
+    # Pega todos os parâmetros que impedem uma movimentação e retorna True se passar nos testes, e False, se não
+
+    return nova_posicao not in paredes_coordenadas and nova_posicao not in objetos_coordenadas and nova_posicao not in monstros_coordenadas and nova_posicao != jogador
+
+
+def movimentacao_monstro(jogador, monstros, objetos_coordenadas, paredes_coordenadas, estado):
+
+    #Checa validade e faz movimentação aleatória dos monstros
+
+    
+    for indice, monstro  in enumerate(monstros):
+            
+        proximo_movimento_monstro = random.randint(1, 4)
+        
+        if proximo_movimento_monstro == 1: # Checa movimento para esquerda
+            nova_posicao = [monstro['posicao'][0] - 1, monstro['posicao'][1]]
+
+            if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
+                monstro['posicao'] = nova_posicao
+                estado['monstros_coordenadas'][indice] = nova_posicao
+                
+        
+        elif proximo_movimento_monstro == 2: # Checa movimento para direita
+            nova_posicao = [monstro['posicao'][0] + 1, monstro['posicao'][1]]
+
+            if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
+                monstro['posicao'] = nova_posicao
+                estado['monstros_coordenadas'][indice] = nova_posicao
+                
+        
+        elif proximo_movimento_monstro == 3: # Checa movimento para cima
+            nova_posicao = [monstro['posicao'][0], monstro['posicao'][1] - 1]
+
+            if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
+                monstro['posicao'] = nova_posicao
+                estado['monstros_coordenadas'][indice] = nova_posicao
+                
+
+        elif proximo_movimento_monstro == 4: # Checa movimento para baixo
+            nova_posicao = [monstro['posicao'][0], monstro['posicao'][1] + 1]
+
+            if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
+                monstro['posicao'] = nova_posicao
+                estado['monstros_coordenadas'][indice] = nova_posicao
 
 
 def atualiza_estado(estado, tecla):
@@ -164,12 +212,10 @@ def atualiza_estado(estado, tecla):
     # Define as variáveis locais para facilitar a leitura do código
     jogador = estado['pos_jogador']
     objetos = estado['objetos']
+    objetos_coordenadas = estado['objetos_coordenadas']
     vidas = estado['vidas']
-    paredes = estado['paredes']
+    paredes_coordenadas = estado['paredes_coordenadas']
     monstros = estado['monstros']
-    monstros_coordenadas = estado['monstros_coordenadas']
-
-
 
     # Limpa a mensagem se o jogador não estiver na mesma posição de nenhum objeto
     estado['mensagem'] = ''
@@ -180,18 +226,21 @@ def atualiza_estado(estado, tecla):
     # Checa se o jogador está interagindo com o objeto e qual, fazendo a devida alteração na vida.
 
     if tecla == motor.SETA_ESQUERDA:
+
         nova_posicao = [jogador[0] - 1, jogador[1]]
 
-        if checa_movimento(jogador, paredes, tecla):
+        if interacao_parede(jogador, paredes_coordenadas, tecla):
 
-            if nova_posicao not in monstros_coordenadas:
+            movimentacao_monstro(jogador, monstros, objetos_coordenadas, paredes_coordenadas, estado)
+
+            if nova_posicao not in estado['monstros_coordenadas']:
 
                 jogador[0] -= 1
 
                 estado['vidas'] = interacao_objetos(jogador, objetos, vidas, estado)
 
             else:
-                estado['vidas'] = interacao_monstros(nova_posicao, monstros, monstros_coordenadas, vidas, estado)
+                estado['vidas'] = interacao_monstros(nova_posicao, monstros, estado['monstros_coordenadas'], vidas, estado)
 
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
@@ -199,16 +248,18 @@ def atualiza_estado(estado, tecla):
     elif tecla == motor.SETA_DIREITA:
         nova_posicao = [jogador[0] + 1, jogador[1]]
 
-        if checa_movimento(jogador, paredes, tecla):
-        
-                    if nova_posicao not in monstros_coordenadas:
+        if interacao_parede(jogador, paredes_coordenadas, tecla):
 
-                        jogador[0] += 1
+            movimentacao_monstro(jogador, monstros, objetos_coordenadas, paredes_coordenadas, estado)
         
-                        estado['vidas'] = interacao_objetos(jogador, objetos, vidas, estado)
+            if nova_posicao not in estado['monstros_coordenadas']:
+
+                jogador[0] += 1
         
-                    else:
-                        estado['vidas'] = interacao_monstros(nova_posicao, monstros, monstros_coordenadas, vidas, estado)
+                estado['vidas'] = interacao_objetos(jogador, objetos, vidas, estado)
+        
+            else:
+                estado['vidas'] = interacao_monstros(nova_posicao, monstros, estado['monstros_coordenadas'], vidas, estado)
 
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
@@ -216,16 +267,18 @@ def atualiza_estado(estado, tecla):
     elif tecla == motor.SETA_CIMA:
         nova_posicao = [jogador[0], jogador[1] - 1]
 
-        if checa_movimento(jogador, paredes, tecla):
-        
-                    if nova_posicao not in monstros_coordenadas:
+        if interacao_parede(jogador, paredes_coordenadas, tecla):
 
-                        jogador[1] -= 1
+            movimentacao_monstro(jogador, monstros, objetos_coordenadas, paredes_coordenadas, estado)
         
-                        estado['vidas'] = interacao_objetos(jogador, objetos, vidas, estado)
+            if nova_posicao not in estado['monstros_coordenadas']:
+
+                jogador[1] -= 1
         
-                    else:
-                        estado['vidas'] = interacao_monstros(nova_posicao, monstros, monstros_coordenadas, vidas, estado)
+                estado['vidas'] = interacao_objetos(jogador, objetos, vidas, estado)
+        
+            else:
+                estado['vidas'] = interacao_monstros(nova_posicao, monstros, estado['monstros_coordenadas'], vidas, estado)
 
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
@@ -233,16 +286,18 @@ def atualiza_estado(estado, tecla):
     elif tecla == motor.SETA_BAIXO:
         nova_posicao = [jogador[0], jogador[1] + 1]
 
-        if checa_movimento(jogador, paredes, tecla):
-        
-                    if nova_posicao not in monstros_coordenadas:
+        if interacao_parede(jogador, paredes_coordenadas, tecla):
 
-                        jogador[1] += 1
+            movimentacao_monstro(jogador, monstros, objetos_coordenadas, paredes_coordenadas, estado)
+    
+            if nova_posicao not in estado['monstros_coordenadas']:
+
+                jogador[1] += 1
         
-                        estado['vidas'] = interacao_objetos(jogador, objetos, vidas, estado)
+                estado['vidas'] = interacao_objetos(jogador, objetos, vidas, estado)
         
-                    else:
-                        estado['vidas'] = interacao_monstros(nova_posicao, monstros, monstros_coordenadas, vidas, estado)
+            else:
+                estado['vidas'] = interacao_monstros(nova_posicao, monstros, estado['monstros_coordenadas'], vidas, estado)
 
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
