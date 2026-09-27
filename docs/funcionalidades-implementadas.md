@@ -63,4 +63,4 @@ No nível básico você deve entender o código fornecido e implementar as segui
 - [x] Funcionalidade 8: Mapa em arquivo;
 - [ ] Funcionalidade 9: Monstro cobrinha;
 - [ ] Funcionalidade 10: Telas adicionais;
-- [ ] Funcionalidade 11: [Sua sugestão validada por um professor - INDIQUE AQUI O NOME DO PROFESSOR QUE VALIDOU SUA IDEIA].
+- [x] Funcionalidade 11: Sorteia um mapa "aleatório" dentro de cinco opções de mapas armazenados em uma pasta diferente (Aprovado pela professora Bárbara).

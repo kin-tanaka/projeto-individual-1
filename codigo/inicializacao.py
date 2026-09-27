@@ -1,4 +1,7 @@
 from random import randint
+from random import choice
+
+import os
 
 from constantes import *  # Você pode usar as constantes definidas em constantes.py, se achar útil
                           # Por exemplo, usar a constante CORACAO é o mesmo que colocar a string '❤'
@@ -93,9 +96,21 @@ def coordenadas_objetos(objetos):
 
 
 def inicializa_estado():
-    # Cria uma variável mapa que representa o mapa do jogo. Cada elemento da lista é uma linha do mapa, e cada caractere da string é um elemento do mapa.
-    # Pode variar entre 'X' (parede) e '_' (espaço em branco).
-    with open('mapa.txt', 'r') as arquivo:
+
+    # Cria uma lista com os mapas da pasta mapa e seleciona aleatóriamente um dos mapas disponíveis para ser o utilizado
+    # Após selecionar, cria uma lista que contenha o mapa como uma matriz
+
+    pasta_mapas = 'mapas'
+    arquivos = os.listdir(pasta_mapas)
+    mapas = []
+
+    for arquivo in arquivos:
+        mapas.append(arquivo)
+
+    mapa_escolhido = choice(mapas)
+    caminho_mapa = os.path.join(pasta_mapas, mapa_escolhido)
+    
+    with open(caminho_mapa, 'r') as arquivo:
         linhas = arquivo.readlines()
 
         mapa = []
