@@ -1,14 +1,14 @@
 from constantes import *  # Você pode usar as constantes definidas em constantes.py, se achar útil
-                          # Por exemplo, usar a constante CORACAO é o mesmo que colocar a string '❤'
-                          # diretamente no código
+
 import motor_grafico as motor  # Utilize as funções do arquivo motor_grafico.py para desenhar na tela
-                               # Por exemplo: motor.preenche_fundo(janela, [0, 0, 0]) preenche o fundo de preto
-import random
+
+import random # Utilizado para auxiliar na movimentação aleatória dos monstros e na interação entre jogador e monstro.
 
 
+# Pega a lista de listas em matriz do mapa devolvida pelo dicionário 'estado' e devolve o mapa desenhado.
 def desenha_paredes(mapa):
-    # Esta função substitui os caracteres 'X' do mapa por paredes (PAREDE) e os caracteres '_' por espaços em branco (' ').
 
+    # Esta função substitui os caracteres 'X' do mapa por paredes (PAREDE) e os caracteres '_' por espaços em branco (' ').
     for i in range(len(mapa)):
         for j in range(len(mapa[i])):
             if mapa[i][j] == 'X':
@@ -19,9 +19,8 @@ def desenha_paredes(mapa):
     return mapa
 
 
+# Desenha todas as informações que aparecem na tela. (ex: mapa, objetos, monstros...)
 def desenha_tela(janela, estado, altura_tela, largura_tela):
-
-    #Todas as variáveis que você precisa para desenhar a tela estão no dicionário "estado" encontrado no arquivo jogo.py.
 
     # Define as variáveis locais para facilitar a leitura do código
     jogador = estado['pos_jogador']
@@ -58,8 +57,6 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
 
 
     # Desenha as vidas do jogador na tela, usando o símbolo de coração
-    
-    
     if vidas < 5:
         vidas__vermelhas = (CORACAO + ' ') * vidas
         vidas__cinzas = ('🤍') * (5 - vidas)
@@ -84,13 +81,14 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
 
     # Desenha a mensagem na tela, se houver
     if mensagem != '':
-        motor.desenha_string(janela, 0, len(mapa) + 8, mensagem, PRETO, BRANCO)
+        motor.desenha_string(janela, 0, altura_tela - 1, mensagem, PRETO, BRANCO)
 
 
     # Mostra a janela na tela
     motor.mostra_janela(janela)
 
 
+# Função responsável pela interação do jogador com as paredes. (colisões)
 def interacao_parede(jogador, paredes_coordenadas, tecla):
     # Esta função verifica se o movimento do jogador é válido, ou seja, se ele não está tentando atravessar uma parede.
     # Retorna True se o movimento for válido e False caso contrário.
@@ -107,6 +105,7 @@ def interacao_parede(jogador, paredes_coordenadas, tecla):
         return False
 
 
+# Função responsável pela interação do jogador com os objetos no mapa. (ganho e perca de vida)
 def interacao_objetos(jogador, objetos, vidas, estado):
     # Esta função verifica se o jogador está na mesma posição de algum objeto e atualiza a quantidade de vidas do jogador com base no tipo do objeto.
     # Retorna a quantidade de vidas atualizada.
@@ -118,6 +117,7 @@ def interacao_objetos(jogador, objetos, vidas, estado):
                     vidas += 1
                     estado['mensagem'] = 'Você ganhou uma vida!'
                     objetos.remove(objeto)  # Remove o coração do mapa após o jogador pegá-lo
+                    estado['objetos_coordenadas'].remove(objeto['posicao'])
                 else:
                     objetos.remove(objeto)  # Remove o coração do mapa, mas não aumenta a quantidade de vidas do jogador
 
@@ -126,11 +126,13 @@ def interacao_objetos(jogador, objetos, vidas, estado):
                     vidas -= 1
                     estado['mensagem'] = 'Você perdeu uma vida!'
                 else:
+                    vidas = 0
                     estado['tela_atual'] = SAIR
 
     return vidas
 
 
+# Função responsável pela interação do jogador com os monstros no mapa. (sistema de batalha)
 def interacao_monstros(jogador, monstros, monstros_coordenadas, vidas, estado):
 
     # Esta função verifica se o jogador está na mesma posição de algum monstro e atualiza a quantidade de vidas do jogador com base no resultado do encontro.
@@ -146,40 +148,46 @@ def interacao_monstros(jogador, monstros, monstros_coordenadas, vidas, estado):
                     vidas -= 1
                     estado['mensagem'] = 'Você foi atacado! Perdeu uma vida.'
                 else:
+                    vidas = 0
                     estado['tela_atual'] = SAIR
             else:
                 if monstro['vidas'] > 1:
                     monstro['vidas'] -= 1
                     estado['mensagem'] = 'Você atacou o monstro! Ele perdeu uma vida.'
                 else:
+                    monstro['vidas'] = 0
                     if vidas < estado['max_vidas']:
                         estado['mensagem'] = 'Você ganhou uma vida por derrotar o monstro!'
-                        vidas += 1
+                        vidas += 1 # Ganha uma vida ao derrotar o monstro
                         monstros.remove(monstro) # Remove o monstro do mapa após o jogador derrotá-lo
                         monstros_coordenadas.remove(monstro['posicao']) # Remove a posição do monstro da lista de coordenadas dos monstros
                     else:
                         estado['mensagem'] = 'Você derrotou o monstro!'
                         monstros.remove(monstro) # Remove o monstro do mapa após o jogador derrotá-lo
                         monstros_coordenadas.remove(monstro['posicao']) # Remove a posição do monstro da lista de coordenadas dos monstros
+                        jogador[0] -= 1
 
 
     return vidas
 
 
+# Função auxiliar para a movimentação dos monstros. Checa todos os parâmetros que impedem a movimentação do monstro e retorna um booleano.
 def movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, monstros_coordenadas, jogador):
     # Pega todos os parâmetros que impedem uma movimentação e retorna True se passar nos testes, e False, se não
 
     return nova_posicao not in paredes_coordenadas and nova_posicao not in objetos_coordenadas and nova_posicao not in monstros_coordenadas and nova_posicao != jogador
 
 
+# Movimenta aleatoriamente todos os monstros no mapa. Diferentes tipos de monstros possuem movimentações diferentes.
+# Atualiza a lista de coordenadas dos monstros junto da sua posição
 def movimentacao_monstro(jogador, monstros, objetos_coordenadas, paredes_coordenadas, estado):
-    #Checa validade e faz movimentação aleatória dos monstros
+    # Faz movimentação aleatória dos monstros
     
 
     for indice, monstro  in enumerate(monstros):
 
         if monstro['tipo'] == MONSTRO_1:
-            # Monstros do tipo 1 andam mais devagar(andam 1 casa por vez) e não conseguem atravessar paredes.
+            # Monstros do tipo 1 andam mais devagar em todas as direções (andam 1 casa por vez).
                 
             proximo_movimento_monstro = random.randint(1, 4)
                 
@@ -255,6 +263,7 @@ def movimentacao_monstro(jogador, monstros, objetos_coordenadas, paredes_coorden
                     estado['monstros_coordenadas'][indice] = nova_posicao
 
 
+# Função reponsável por atualizar todas as informações em mapa. Todas as interações do jogador e sua movimentação estão aqui.
 def atualiza_estado(estado, tecla):
 
     # Define as variáveis locais para facilitar a leitura do código
@@ -273,13 +282,11 @@ def atualiza_estado(estado, tecla):
     # Checa se o jogador está tentando atravessar um monstro. Se sim, impede e tem interação com o monstro, se não
     # Checa se o jogador está interagindo com o objeto e qual, fazendo a devida alteração na vida.
 
-    if tecla == motor.SETA_ESQUERDA:
+    if tecla == motor.SETA_ESQUERDA: # Movimento para esquerda
 
         nova_posicao = [jogador[0] - 1, jogador[1]]
 
         if interacao_parede(jogador, paredes_coordenadas, tecla):
-
-            movimentacao_monstro(jogador, monstros, objetos_coordenadas, paredes_coordenadas, estado)
 
             if nova_posicao not in estado['monstros_coordenadas']:
 
@@ -290,10 +297,12 @@ def atualiza_estado(estado, tecla):
             else:
                 estado['vidas'] = interacao_monstros(nova_posicao, monstros, estado['monstros_coordenadas'], vidas, estado)
 
+                movimentacao_monstro(jogador, monstros, objetos_coordenadas, paredes_coordenadas, estado)
+
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
 
-    elif tecla == motor.SETA_DIREITA:
+    elif tecla == motor.SETA_DIREITA: # Movimento para direita
         nova_posicao = [jogador[0] + 1, jogador[1]]
 
         if interacao_parede(jogador, paredes_coordenadas, tecla):
@@ -312,7 +321,7 @@ def atualiza_estado(estado, tecla):
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
             
-    elif tecla == motor.SETA_CIMA:
+    elif tecla == motor.SETA_CIMA: # Movimento para cima
         nova_posicao = [jogador[0], jogador[1] - 1]
 
         if interacao_parede(jogador, paredes_coordenadas, tecla):
@@ -331,7 +340,7 @@ def atualiza_estado(estado, tecla):
         else:
             estado['mensagem'] = 'Não pode atravessar paredes!'  # Mensagem exibida se o jogador tentar atravessar uma parede
 
-    elif tecla == motor.SETA_BAIXO:
+    elif tecla == motor.SETA_BAIXO: # Movimento para baixo
         nova_posicao = [jogador[0], jogador[1] + 1]
 
         if interacao_parede(jogador, paredes_coordenadas, tecla):
