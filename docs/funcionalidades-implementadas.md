@@ -54,7 +54,7 @@ No nível básico você deve entender o código fornecido e implementar as segui
 ### [Nível Avançado](avancado.md)
 
 - [ ] Funcionalidade 1: Personagem centralizado na tela e mapa maior do que a janela;
-- [ ] Funcionalidade 2: Diferentes tipos de inimigos;
+- [x] Funcionalidade 2: Diferentes tipos de inimigos;
 - [ ] Funcionalidade 3: Chefão;
 - [ ] Funcionalidade 4: Sala secreta;
 - [ ] Funcionalidade 5: Sistema de experiência e níveis;

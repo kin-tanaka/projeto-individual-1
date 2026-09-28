@@ -142,7 +142,9 @@ def inicializa_estado():
 
     #Cria monstros no mapa
     monstros = []
-    monstros += gera_monstros(4, MONSTRO, ROXO, 5, 0.3, largura_mapa, altura_mapa, posicoes_ocupadas)
+    monstros += gera_monstros(3, MONSTRO_1, ROXO, 5, 0.3, largura_mapa, altura_mapa, posicoes_ocupadas) # Mais vidas e mais agressivos
+    monstros += gera_monstros(3, MONSTRO_2, BRANCO, 3, 0.5, largura_mapa, altura_mapa, posicoes_ocupadas) # Menos vidas e muito agressivos
+    monstros += gera_monstros(3, MONSTRO_3, AZUL, 2, 0.1, largura_mapa, altura_mapa, posicoes_ocupadas) # Menos vidas e menos agressivos
 
     monstros_coordenadas = coordenadas_monstros(monstros)
     

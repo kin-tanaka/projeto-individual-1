@@ -84,7 +84,7 @@ def desenha_tela(janela, estado, altura_tela, largura_tela):
 
     # Desenha a mensagem na tela, se houver
     if mensagem != '':
-        motor.desenha_string(janela, 0, len(mapa) + 7, mensagem, PRETO, BRANCO)
+        motor.desenha_string(janela, 0, len(mapa) + 8, mensagem, PRETO, BRANCO)
 
 
     # Mostra a janela na tela
@@ -152,9 +152,15 @@ def interacao_monstros(jogador, monstros, monstros_coordenadas, vidas, estado):
                     monstro['vidas'] -= 1
                     estado['mensagem'] = 'Você atacou o monstro! Ele perdeu uma vida.'
                 else:
-                    estado['mensagem'] = 'Você derrotou o monstro!'
-                    monstros.remove(monstro) # Remove o monstro do mapa após o jogador derrotá-lo
-                    monstros_coordenadas.remove(monstro['posicao']) # Remove a posição do monstro da lista de coordenadas dos monstros
+                    if vidas < estado['max_vidas']:
+                        estado['mensagem'] = 'Você ganhou uma vida por derrotar o monstro!'
+                        vidas += 1
+                        monstros.remove(monstro) # Remove o monstro do mapa após o jogador derrotá-lo
+                        monstros_coordenadas.remove(monstro['posicao']) # Remove a posição do monstro da lista de coordenadas dos monstros
+                    else:
+                        estado['mensagem'] = 'Você derrotou o monstro!'
+                        monstros.remove(monstro) # Remove o monstro do mapa após o jogador derrotá-lo
+                        monstros_coordenadas.remove(monstro['posicao']) # Remove a posição do monstro da lista de coordenadas dos monstros
 
 
     return vidas
@@ -167,44 +173,86 @@ def movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordena
 
 
 def movimentacao_monstro(jogador, monstros, objetos_coordenadas, paredes_coordenadas, estado):
-
     #Checa validade e faz movimentação aleatória dos monstros
-
     
+
     for indice, monstro  in enumerate(monstros):
-            
-        proximo_movimento_monstro = random.randint(1, 4)
-        
-        if proximo_movimento_monstro == 1: # Checa movimento para esquerda
-            nova_posicao = [monstro['posicao'][0] - 1, monstro['posicao'][1]]
 
-            if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
-                monstro['posicao'] = nova_posicao
-                estado['monstros_coordenadas'][indice] = nova_posicao
+        if monstro['tipo'] == MONSTRO_1:
+            # Monstros do tipo 1 andam mais devagar(andam 1 casa por vez) e não conseguem atravessar paredes.
                 
-        
-        elif proximo_movimento_monstro == 2: # Checa movimento para direita
-            nova_posicao = [monstro['posicao'][0] + 1, monstro['posicao'][1]]
-
-            if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
-                monstro['posicao'] = nova_posicao
-                estado['monstros_coordenadas'][indice] = nova_posicao
+            proximo_movimento_monstro = random.randint(1, 4)
                 
-        
-        elif proximo_movimento_monstro == 3: # Checa movimento para cima
-            nova_posicao = [monstro['posicao'][0], monstro['posicao'][1] - 1]
+            if proximo_movimento_monstro == 1: # Checa movimento para esquerda
+                nova_posicao = [monstro['posicao'][0] - 1, monstro['posicao'][1]]
 
-            if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
-                monstro['posicao'] = nova_posicao
-                estado['monstros_coordenadas'][indice] = nova_posicao
+                if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
+                    monstro['posicao'] = nova_posicao
+                    estado['monstros_coordenadas'][indice] = nova_posicao
+                        
                 
+            elif proximo_movimento_monstro == 2: # Checa movimento para direita
+                nova_posicao = [monstro['posicao'][0] + 1, monstro['posicao'][1]]
 
-        elif proximo_movimento_monstro == 4: # Checa movimento para baixo
-            nova_posicao = [monstro['posicao'][0], monstro['posicao'][1] + 1]
+                if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
+                    monstro['posicao'] = nova_posicao
+                    estado['monstros_coordenadas'][indice] = nova_posicao
+                        
+                
+            elif proximo_movimento_monstro == 3: # Checa movimento para cima
+                nova_posicao = [monstro['posicao'][0], monstro['posicao'][1] - 1]
 
-            if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
-                monstro['posicao'] = nova_posicao
-                estado['monstros_coordenadas'][indice] = nova_posicao
+                if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
+                    monstro['posicao'] = nova_posicao
+                    estado['monstros_coordenadas'][indice] = nova_posicao
+                        
+
+            elif proximo_movimento_monstro == 4: # Checa movimento para baixo
+                nova_posicao = [monstro['posicao'][0], monstro['posicao'][1] + 1]
+
+                if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
+                    monstro['posicao'] = nova_posicao
+                    estado['monstros_coordenadas'][indice] = nova_posicao
+
+        elif monstro['tipo'] == MONSTRO_2:
+            # Monstros do tipo 2 andam somente em uma direção (vertical) como cobras.
+
+            proximo_movimento_monstro = random.randint(1, 2)
+                
+            if proximo_movimento_monstro == 1: # Checa movimento para cima
+                nova_posicao = [monstro['posicao'][0], monstro['posicao'][1] - 1]
+
+                if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
+                    monstro['posicao'] = nova_posicao
+                    estado['monstros_coordenadas'][indice] = nova_posicao
+                        
+
+            elif proximo_movimento_monstro == 2: # Checa movimento para baixo
+                nova_posicao = [monstro['posicao'][0], monstro['posicao'][1] + 1]
+
+                if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
+                    monstro['posicao'] = nova_posicao
+                    estado['monstros_coordenadas'][indice] = nova_posicao
+
+        elif monstro['tipo'] == MONSTRO_3:
+            # Monstros do tipo 3 andam somente em uma direção (horizontal) como caranguejos.
+
+            proximo_movimento_monstro = random.randint(1, 2)
+                
+            if proximo_movimento_monstro == 1: # Checa movimento para cima
+                nova_posicao = [monstro['posicao'][0] - 1, monstro['posicao'][1]]
+
+                if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
+                    monstro['posicao'] = nova_posicao
+                    estado['monstros_coordenadas'][indice] = nova_posicao
+                        
+
+            elif proximo_movimento_monstro == 2: # Checa movimento para baixo
+                nova_posicao = [monstro['posicao'][0] + 1, monstro['posicao'][1]]
+
+                if movimento_valido_monstro(nova_posicao, paredes_coordenadas, objetos_coordenadas, estado['monstros_coordenadas'], jogador):
+                    monstro['posicao'] = nova_posicao
+                    estado['monstros_coordenadas'][indice] = nova_posicao
 
 
 def atualiza_estado(estado, tecla):
